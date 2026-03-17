@@ -19,7 +19,7 @@ int DESTRUCTOR_CHILD_OBJ(CHILD_OBJ* obj)
 
 static int DoAction( CHILD_OBJ* obj)
 {
-    __OMNI__CHILD_OBJ *oobj=(void*)obj;
+    __OMNI__CHILD_OBJ *oobj=CxOOP_OMNI(CHILD_OBJ,obj);
 
     int superResult=oobj->SUPER_DoAction((void*)oobj);
     int ret=superResult*2;

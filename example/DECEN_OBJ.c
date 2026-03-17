@@ -16,7 +16,7 @@ int DESTRUCTOR_DECEN_OBJ(DECEN_OBJ* obj)
 
 static int DoAction( DECEN_OBJ* obj)
 {
-    __OMNI__DECEN_OBJ *oobj=(void*)obj;
+    __OMNI__DECEN_OBJ *oobj=CxOOP_OMNI(DECEN_OBJ,obj);
 
     int superResult=oobj->SUPER_DoAction((void*)oobj);
     int ret=superResult+20;
