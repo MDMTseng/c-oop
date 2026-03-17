@@ -1,6 +1,8 @@
 #ifndef C_X_OOP_H_
 #define C_X_OOP_H_
 
+#include <stdlib.h>
+
 #define CxOOP__METHOD__DECLARE(PREFIX,RET,FUNCNAME,...)\
         static RET FUNCNAME ( __VA_ARGS__ );
 #define CxOOP__METHOD__SPAN(PREFIX,RET,FUNCNAME,...)\
@@ -44,7 +46,6 @@
             CLASSNAME##_DNA_(CxOOP_STRUCT_OBJ_,CLASSNAME)\
             CxOOP_STRUCT_OBJ_(CLASSNAME,CLASSNAME)\
         };\
-        int CONSTRUCTOR_##CLASSNAME( CLASSNAME * obj);\
         int DESTRUCTOR_##CLASSNAME( CLASSNAME * obj);
 
 #define CxOOP_DECLARE_METHOD(CLASSNAME) \
@@ -69,6 +70,10 @@
 /* Inheritance helpers — alternate EXTENDS_ / EXTENDS2_ at each level */
 #define CxOOP_EXTENDS_(PARENT,X,COBJ)  PARENT##_DNA_(X,COBJ) X(PARENT,COBJ)
 #define CxOOP_EXTENDS2_(PARENT,X,COBJ) PARENT##_DNA_(X,COBJ) X(PARENT,COBJ)
+
+/* Heap allocation */
+#define CxOOP_ALLOC(CLASS)  ((CLASS*)calloc(1, sizeof(CLASS)))
+#define CxOOP_DELETE(ptr)   do { if(ptr){ (ptr)->Destroy(ptr); free(ptr); } } while(0)
 
 /* Casting */
 #define CxOOP_DCAST(toCLASS,obj_PTR)  ((obj_PTR) ? ((toCLASS*)((void*)((obj_PTR)+(  0*(unsigned long)((obj_PTR)->___##toCLASS##_priv_space)  )))) : (toCLASS*)0)

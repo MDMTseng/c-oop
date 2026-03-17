@@ -15,6 +15,7 @@
         MACRO_X(COBJ,int,DoAction, COBJ* self)
 
 CxOOP_OBJECT_DECLARE(DECEN_OBJ)
+int CONSTRUCTOR_DECEN_OBJ(DECEN_OBJ* obj);
 
 #endif
 

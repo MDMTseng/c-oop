@@ -49,5 +49,13 @@ int main(void) {
         obj_arr[i]->Destroy(obj_arr[i]);
     }
 
+    printf("\n===============Heap: CxOOP_ALLOC / CxOOP_DELETE==============\n");
+    CHILD_OBJ *hc = CxOOP_ALLOC(CHILD_OBJ);
+    CONSTRUCTOR_CHILD_OBJ(hc);
+    hc->pub = 55;
+    PARENT_OBJ *hp = DCAST(PARENT_OBJ, hc);
+    printf("Heap DoAction::%d\n", hp->DoAction(hp));
+    CxOOP_DELETE(hp);
+
     return EXIT_SUCCESS;
 }

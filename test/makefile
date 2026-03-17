@@ -1,5 +1,5 @@
 
-TESTS=test_dcast_null test_destructor test_omni_cast test_heap_alloc test_virtual_destroy test_extends_macro
+TESTS=test_dcast_null test_destructor test_omni_cast test_heap_alloc test_virtual_destroy test_extends_macro test_alloc_delete
 CFLAGS=-Wall -std=c99 -I../CxOOP_lib -I../example
 OBJ_SRCS=../example/PARENT_OBJ.c ../example/CHILD_OBJ.c ../example/DECEN_OBJ.c
 
