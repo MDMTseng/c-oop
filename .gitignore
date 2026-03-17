@@ -2,3 +2,7 @@ bin/*
 obj/*
 .cproject
 .project
+test/test_dcast_null
+test/test_destructor
+test/test_omni_cast
+test/test_heap_alloc
