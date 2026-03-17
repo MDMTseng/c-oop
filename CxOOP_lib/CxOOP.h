@@ -66,6 +66,11 @@
         CLASSNAME##_PRIVATE_METHOD_(CLASSNAME,CxOOP__METHOD__SETTING)\
         CLASSNAME##_OVERRIDE_METHOD_(CLASSNAME,CxOOP__METHOD__OVERRIDE_SETTING)\
 
+/* Inheritance helpers — alternate EXTENDS_ / EXTENDS2_ at each level */
+#define CxOOP_EXTENDS_(PARENT,X,COBJ)  PARENT##_DNA_(X,COBJ) X(PARENT,COBJ)
+#define CxOOP_EXTENDS2_(PARENT,X,COBJ) PARENT##_DNA_(X,COBJ) X(PARENT,COBJ)
+
+/* Casting */
 #define CxOOP_DCAST(toCLASS,obj_PTR)  ((obj_PTR) ? ((toCLASS*)((void*)((obj_PTR)+(  0*(unsigned long)((obj_PTR)->___##toCLASS##_priv_space)  )))) : (toCLASS*)0)
 #define DCAST(toCLASS,obj_PTR)  CxOOP_DCAST(toCLASS,obj_PTR)
 
