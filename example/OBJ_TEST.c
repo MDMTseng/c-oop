@@ -43,9 +43,11 @@ int main(void) {
     printf("\n===============Object size==============\n");
     printf("!!!Hello sizeof!!!::%d..%d..%d\n",(int)sizeof(PARENT_OBJ),(int)sizeof(CHILD_OBJ),(int)sizeof(DECEN_OBJ));
 
-    DESTRUCTOR_DECEN_OBJ(&d);
-    DESTRUCTOR_CHILD_OBJ(&c);
-    DESTRUCTOR_PARENT_OBJ(&p);
+    printf("\n===============Virtual Destroy==============\n");
+    for(i=0;i<sizeof(obj_arr)/sizeof(obj_arr[0]);i++)
+    {
+        obj_arr[i]->Destroy(obj_arr[i]);
+    }
 
     return EXIT_SUCCESS;
 }

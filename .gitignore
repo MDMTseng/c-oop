@@ -6,3 +6,4 @@ test/test_dcast_null
 test/test_destructor
 test/test_omni_cast
 test/test_heap_alloc
+test/test_virtual_destroy

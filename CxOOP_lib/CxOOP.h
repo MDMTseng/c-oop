@@ -34,11 +34,13 @@
         };\
         struct ___OMNI__##CLASSNAME/* A struct to access all members, use it carefully */\
         {\
+            int (*Destroy)(void* self);\
             CLASSNAME##_DNA_(CxOOP_STRUCT_OBJ_,CLASSNAME)\
             CxOOP_STRUCT___OMNI__OBJ_(CLASSNAME,CLASSNAME)\
         };\
         struct _##CLASSNAME/* A struct to provide encapsulation */\
         {\
+            int (*Destroy)(void* self);\
             CLASSNAME##_DNA_(CxOOP_STRUCT_OBJ_,CLASSNAME)\
             CxOOP_STRUCT_OBJ_(CLASSNAME,CLASSNAME)\
         };\
@@ -59,6 +61,7 @@
 
 #define CxOOP_INIT_METHOD(CLASSNAME,obj_ptr)\
         __OMNI__##CLASSNAME *omni_obj_____=(void*)obj_ptr;\
+        *(void**)&(omni_obj_____->Destroy)=(void*)DESTRUCTOR_##CLASSNAME;\
         CLASSNAME##_PUBLIC_METHOD_(CLASSNAME,CxOOP__METHOD__SETTING)\
         CLASSNAME##_PRIVATE_METHOD_(CLASSNAME,CxOOP__METHOD__SETTING)\
         CLASSNAME##_OVERRIDE_METHOD_(CLASSNAME,CxOOP__METHOD__OVERRIDE_SETTING)\
