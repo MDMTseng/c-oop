@@ -1,6 +1,6 @@
 
 export CC=gcc
-export CFLAGS=-c -Wall
+export CFLAGS=-c -Wall -std=c99
 export LDFLAGS=
 
 export OBJ_FILE_DIR=obj
