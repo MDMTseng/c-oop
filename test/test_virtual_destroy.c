@@ -1,102 +1,71 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "PARENT_OBJ.h"
-#include "CHILD_OBJ.h"
-#include "DECEN_OBJ.h"
+#include "Shape.h"
+#include "Circle.h"
+#include "Sphere.h"
 
 int main(void) {
     int pass = 1;
 
     /* Test 1: Destroy pointer is set after construction */
-    PARENT_OBJ p = {0};
-    CONSTRUCTOR_PARENT_OBJ(&p);
-    if (p.Destroy == NULL) {
-        printf("FAIL: PARENT_OBJ Destroy is NULL after construction\n");
-        pass = 0;
+    Shape s = {0}; CONSTRUCTOR_Shape(&s);
+    Circle c = {0}; CONSTRUCTOR_Circle(&c);
+    Sphere sp = {0}; CONSTRUCTOR_Sphere(&sp);
+
+    if (!s.Destroy) { printf("FAIL: Shape Destroy is NULL\n"); pass = 0; }
+    else printf("PASS: Shape Destroy is set\n");
+
+    if (!c.Destroy) { printf("FAIL: Circle Destroy is NULL\n"); pass = 0; }
+    else printf("PASS: Circle Destroy is set\n");
+
+    if (!sp.Destroy) { printf("FAIL: Sphere Destroy is NULL\n"); pass = 0; }
+    else printf("PASS: Sphere Destroy is set\n");
+
+    /* Test 2: Virtual dispatch — child Destroy differs from parent */
+    Shape *as_shape = DCAST(Shape, &c);
+    if (as_shape->Destroy == s.Destroy) {
+        printf("FAIL: Circle via base has same Destroy as Shape\n"); pass = 0;
     } else {
-        printf("PASS: PARENT_OBJ Destroy is set\n");
+        printf("PASS: Circle via base has overridden Destroy\n");
     }
 
-    CHILD_OBJ c = {0};
-    CONSTRUCTOR_CHILD_OBJ(&c);
-    if (c.Destroy == NULL) {
-        printf("FAIL: CHILD_OBJ Destroy is NULL after construction\n");
-        pass = 0;
+    Shape *as_shape2 = DCAST(Shape, &sp);
+    if (as_shape2->Destroy == s.Destroy || as_shape2->Destroy == as_shape->Destroy) {
+        printf("FAIL: Sphere via base Destroy not unique\n"); pass = 0;
     } else {
-        printf("PASS: CHILD_OBJ Destroy is set\n");
+        printf("PASS: Sphere via base has its own Destroy\n");
     }
 
-    DECEN_OBJ d = {0};
-    CONSTRUCTOR_DECEN_OBJ(&d);
-    if (d.Destroy == NULL) {
-        printf("FAIL: DECEN_OBJ Destroy is NULL after construction\n");
-        pass = 0;
-    } else {
-        printf("PASS: DECEN_OBJ Destroy is set\n");
-    }
-
-    /* Test 2: Virtual dispatch — Destroy through base pointer calls correct destructor */
-    PARENT_OBJ *as_parent = DCAST(PARENT_OBJ, &c);
-    /* Child's Destroy should differ from parent's (different destructor) */
-    if (as_parent->Destroy == p.Destroy) {
-        printf("FAIL: CHILD via base ptr has same Destroy as PARENT (no override)\n");
-        pass = 0;
-    } else {
-        printf("PASS: CHILD via base ptr has overridden Destroy\n");
-    }
-
-    PARENT_OBJ *as_parent2 = DCAST(PARENT_OBJ, &d);
-    if (as_parent2->Destroy == p.Destroy || as_parent2->Destroy == as_parent->Destroy) {
-        printf("FAIL: DECEN via base ptr Destroy not unique\n");
-        pass = 0;
-    } else {
-        printf("PASS: DECEN via base ptr has its own Destroy\n");
-    }
-
-    /* Test 3: Virtual destroy through base pointer doesn't crash */
-    CHILD_OBJ *hc = (CHILD_OBJ*)calloc(1, sizeof(CHILD_OBJ));
-    CONSTRUCTOR_CHILD_OBJ(hc);
-    hc->pub = 42;
-    PARENT_OBJ *base = DCAST(PARENT_OBJ, hc);
-    base->Destroy(base);  /* virtual call — should invoke DESTRUCTOR_CHILD_OBJ */
-    printf("PASS: virtual Destroy through base pointer (CHILD)\n");
+    /* Test 3: Virtual destroy on heap objects through base pointer */
+    Circle *hc = CxOOP_ALLOC(Circle);
+    CONSTRUCTOR_Circle(hc);
+    Shape *base = DCAST(Shape, hc);
+    base->Destroy(base);
+    printf("PASS: virtual Destroy through base pointer (Circle)\n");
     free(hc);
 
-    DECEN_OBJ *hd = (DECEN_OBJ*)calloc(1, sizeof(DECEN_OBJ));
-    CONSTRUCTOR_DECEN_OBJ(hd);
-    hd->pub = 77;
-    PARENT_OBJ *base2 = DCAST(PARENT_OBJ, hd);
-    base2->Destroy(base2);  /* virtual call — should invoke DESTRUCTOR_DECEN_OBJ */
-    printf("PASS: virtual Destroy through base pointer (DECEN)\n");
-    free(hd);
+    Sphere *hsp = CxOOP_ALLOC(Sphere);
+    CONSTRUCTOR_Sphere(hsp);
+    Shape *base2 = DCAST(Shape, hsp);
+    base2->Destroy(base2);
+    printf("PASS: virtual Destroy through base pointer (Sphere)\n");
+    free(hsp);
 
-    /* Test 4: Polymorphic array — destroy all through base pointers */
-    PARENT_OBJ *hp = (PARENT_OBJ*)calloc(1, sizeof(PARENT_OBJ));
-    CONSTRUCTOR_PARENT_OBJ(hp);
-    CHILD_OBJ *hc2 = (CHILD_OBJ*)calloc(1, sizeof(CHILD_OBJ));
-    CONSTRUCTOR_CHILD_OBJ(hc2);
-    DECEN_OBJ *hd2 = (DECEN_OBJ*)calloc(1, sizeof(DECEN_OBJ));
-    CONSTRUCTOR_DECEN_OBJ(hd2);
+    /* Test 4: Polymorphic array destroy */
+    Shape *hp = CxOOP_ALLOC(Shape); CONSTRUCTOR_Shape(hp);
+    Circle *hc2 = CxOOP_ALLOC(Circle); CONSTRUCTOR_Circle(hc2);
+    Sphere *hsp2 = CxOOP_ALLOC(Sphere); CONSTRUCTOR_Sphere(hsp2);
 
-    PARENT_OBJ *arr[] = {hp, DCAST(PARENT_OBJ, hc2), DCAST(PARENT_OBJ, hd2)};
+    Shape *arr[] = {hp, DCAST(Shape, hc2), DCAST(Shape, hsp2)};
     int i;
-    for (i = 0; i < 3; i++) {
-        arr[i]->Destroy(arr[i]);
-    }
+    for (i = 0; i < 3; i++) arr[i]->Destroy(arr[i]);
     printf("PASS: polymorphic array virtual Destroy\n");
-    free(hp);
-    free(hc2);
-    free(hd2);
+    free(hp); free(hc2); free(hsp2);
 
     /* Clean up stack objects */
-    d.Destroy(&d);
-    c.Destroy(&c);
-    p.Destroy(&p);
+    sp.Destroy(&sp); c.Destroy(&c); s.Destroy(&s);
 
-    if (!pass) {
-        printf("\nSOME TESTS FAILED\n");
-        return EXIT_FAILURE;
-    }
+    if (!pass) { printf("\nSOME TESTS FAILED\n"); return EXIT_FAILURE; }
     printf("\nALL TESTS PASSED\n");
     return EXIT_SUCCESS;
 }

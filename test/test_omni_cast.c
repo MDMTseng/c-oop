@@ -1,70 +1,53 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "PARENT_OBJ.h"
-#include "CHILD_OBJ.h"
-#include "DECEN_OBJ.h"
+#include "Shape.h"
+#include "Circle.h"
+#include "Sphere.h"
 
 int main(void) {
     int pass = 1;
 
     /* Test 1: CxOOP_OMNI gives access to private members */
-    PARENT_OBJ p = {0};
-    CONSTRUCTOR_PARENT_OBJ(&p);
-    p.pub = 42;
+    Shape s = {0};
+    CONSTRUCTOR_Shape(&s);
 
-    __OMNI__PARENT_OBJ *op = CxOOP_OMNI(PARENT_OBJ, &p);
-    op->__priv = 99;
-
-    if (op->pub != 42) {
-        printf("FAIL: OMNI cast lost public member value\n");
-        pass = 0;
-    } else {
-        printf("PASS: OMNI cast preserves public members\n");
-    }
-
-    if (op->__priv != 99) {
+    __OMNI__Shape *os = CxOOP_OMNI(Shape, &s);
+    os->_id = 99;
+    if (os->_id != 99) {
         printf("FAIL: OMNI cast cannot write private member\n");
         pass = 0;
     } else {
         printf("PASS: OMNI cast can access private members\n");
     }
 
-    /* Test 2: CxOOP_OMNI on child class with override method */
-    CHILD_OBJ c = {0};
-    CONSTRUCTOR_CHILD_OBJ(&c);
-    c.pub = 50;
-
-    __OMNI__CHILD_OBJ *oc = CxOOP_OMNI(CHILD_OBJ, &c);
-    int super_result = oc->SUPER_DoAction((void*)oc);
-    if (super_result != 50) {
-        printf("FAIL: SUPER_DoAction via OMNI returned %d, expected 50\n", super_result);
+    /* Test 2: CxOOP_OMNI preserves public members */
+    s.name = "test";
+    if (os->name != s.name) {
+        printf("FAIL: OMNI cast lost public member value\n");
         pass = 0;
     } else {
-        printf("PASS: SUPER_DoAction accessible via OMNI cast\n");
+        printf("PASS: OMNI cast preserves public members\n");
     }
 
-    /* Test 3: CxOOP_OMNI on descendant class */
-    DECEN_OBJ d = {0};
-    CONSTRUCTOR_DECEN_OBJ(&d);
-    d.pub = 10;
+    /* Test 3: CxOOP_OMNI on child class with SUPER method */
+    Sphere sp = {0};
+    CONSTRUCTOR_Sphere(&sp);
+    sp.radius = 2.0;
 
-    __OMNI__DECEN_OBJ *od = CxOOP_OMNI(DECEN_OBJ, &d);
-    int d_super = od->SUPER_DoAction((void*)od);
-    if (d_super != 20) {
-        printf("FAIL: DECEN SUPER_DoAction via OMNI returned %d, expected 20\n", d_super);
+    __OMNI__Sphere *osp = CxOOP_OMNI(Sphere, &sp);
+    double super_area = osp->SUPER_area((void*)osp);
+    double expected = 3.14159265 * 2.0 * 2.0;
+    if (super_area < expected - 0.01 || super_area > expected + 0.01) {
+        printf("FAIL: SUPER_area via OMNI returned %.4f, expected %.4f\n", super_area, expected);
         pass = 0;
     } else {
-        printf("PASS: DECEN SUPER_DoAction accessible via OMNI cast\n");
+        printf("PASS: SUPER_area accessible via OMNI cast\n");
     }
 
-    DESTRUCTOR_DECEN_OBJ(&d);
-    DESTRUCTOR_CHILD_OBJ(&c);
-    DESTRUCTOR_PARENT_OBJ(&p);
+    DESTRUCTOR_Sphere(&sp);
+    DESTRUCTOR_Shape(&s);
 
-    if (!pass) {
-        printf("\nSOME TESTS FAILED\n");
-        return EXIT_FAILURE;
-    }
+    if (!pass) { printf("\nSOME TESTS FAILED\n"); return EXIT_FAILURE; }
     printf("\nALL TESTS PASSED\n");
     return EXIT_SUCCESS;
 }

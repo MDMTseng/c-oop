@@ -1,16 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "PARENT_OBJ.h"
-#include "CHILD_OBJ.h"
-#include "DECEN_OBJ.h"
+#include "Shape.h"
+#include "Circle.h"
+#include "Sphere.h"
 
 int main(void) {
     int pass = 1;
 
     /* Test 1: DCAST with valid pointer */
-    CHILD_OBJ c = {0};
-    CONSTRUCTOR_CHILD_OBJ(&c);
-    PARENT_OBJ *p = CxOOP_DCAST(PARENT_OBJ, &c);
+    Circle c = {0};
+    CONSTRUCTOR_Circle(&c);
+    Shape *p = CxOOP_DCAST(Shape, &c);
     if (p == NULL) {
         printf("FAIL: DCAST valid pointer returned NULL\n");
         pass = 0;
@@ -18,9 +18,9 @@ int main(void) {
         printf("PASS: DCAST valid pointer returned non-NULL\n");
     }
 
-    /* Test 2: DCAST with NULL pointer should return NULL, not crash */
-    CHILD_OBJ *null_child = NULL;
-    PARENT_OBJ *result = CxOOP_DCAST(PARENT_OBJ, null_child);
+    /* Test 2: DCAST with NULL pointer should return NULL */
+    Circle *null_child = NULL;
+    Shape *result = CxOOP_DCAST(Shape, null_child);
     if (result != NULL) {
         printf("FAIL: DCAST NULL pointer returned non-NULL\n");
         pass = 0;
@@ -29,9 +29,9 @@ int main(void) {
     }
 
     /* Test 3: DCAST shorthand macro */
-    DECEN_OBJ d = {0};
-    CONSTRUCTOR_DECEN_OBJ(&d);
-    PARENT_OBJ *dp = DCAST(PARENT_OBJ, &d);
+    Sphere sp = {0};
+    CONSTRUCTOR_Sphere(&sp);
+    Shape *dp = DCAST(Shape, &sp);
     if (dp == NULL) {
         printf("FAIL: DCAST shorthand returned NULL for valid ptr\n");
         pass = 0;
@@ -39,8 +39,8 @@ int main(void) {
         printf("PASS: DCAST shorthand works for valid ptr\n");
     }
 
-    DESTRUCTOR_DECEN_OBJ(&d);
-    DESTRUCTOR_CHILD_OBJ(&c);
+    sp.Destroy(&sp);
+    c.Destroy(&c);
 
     if (!pass) {
         printf("\nSOME TESTS FAILED\n");

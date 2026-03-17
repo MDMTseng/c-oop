@@ -1,86 +1,63 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "PARENT_OBJ.h"
-#include "CHILD_OBJ.h"
-#include "DECEN_OBJ.h"
+#include "Shape.h"
+#include "Circle.h"
+#include "Sphere.h"
 
 int main(void) {
     int pass = 1;
 
-    /* Test 1: CxOOP_ALLOC returns non-NULL typed pointer */
-    PARENT_OBJ *p = CxOOP_ALLOC(PARENT_OBJ);
-    if (!p) {
-        printf("FAIL: CxOOP_ALLOC(PARENT_OBJ) returned NULL\n");
-        return EXIT_FAILURE;
-    }
-    CONSTRUCTOR_PARENT_OBJ(p);
-    p->pub = 42;
-    if (p->pub != 42 || p->DoAction(p) != 42) {
-        printf("FAIL: alloc'd PARENT_OBJ not functional\n");
-        pass = 0;
-    } else {
-        printf("PASS: CxOOP_ALLOC + construct PARENT_OBJ\n");
-    }
-    CxOOP_DELETE(p);
-    printf("PASS: CxOOP_DELETE PARENT_OBJ\n");
+    /* Test 1: CxOOP_ALLOC returns non-NULL */
+    Shape *hs = CxOOP_ALLOC(Shape);
+    if (!hs) { printf("FAIL: CxOOP_ALLOC(Shape) returned NULL\n"); return EXIT_FAILURE; }
+    CONSTRUCTOR_Shape(hs);
+    if (hs->area(hs) != 0.0) { printf("FAIL: alloc'd Shape area != 0\n"); pass = 0; }
+    else printf("PASS: CxOOP_ALLOC + construct Shape\n");
+    CxOOP_DELETE(hs);
+    printf("PASS: CxOOP_DELETE Shape\n");
 
     /* Test 2: CxOOP_ALLOC + CxOOP_DELETE with child class */
-    CHILD_OBJ *c = CxOOP_ALLOC(CHILD_OBJ);
-    if (!c) {
-        printf("FAIL: CxOOP_ALLOC(CHILD_OBJ) returned NULL\n");
-        return EXIT_FAILURE;
-    }
-    CONSTRUCTOR_CHILD_OBJ(c);
-    c->pub = 30;
-    PARENT_OBJ *as_parent = DCAST(PARENT_OBJ, c);
-    int result = as_parent->DoAction(as_parent);
-    if (result != 60) {
-        printf("FAIL: alloc'd CHILD_OBJ DoAction got %d, expected 60\n", result);
-        pass = 0;
+    Circle *hc = CxOOP_ALLOC(Circle);
+    if (!hc) { printf("FAIL: CxOOP_ALLOC(Circle) returned NULL\n"); return EXIT_FAILURE; }
+    CONSTRUCTOR_Circle(hc);
+    hc->radius = 1.0;
+    Shape *as_shape = DCAST(Shape, hc);
+    double result = as_shape->area(as_shape);
+    double expected = 3.14159265;
+    if (result < expected - 0.01 || result > expected + 0.01) {
+        printf("FAIL: alloc'd Circle area got %.4f, expected %.4f\n", result, expected); pass = 0;
     } else {
-        printf("PASS: CxOOP_ALLOC CHILD_OBJ polymorphism (30*2=60)\n");
+        printf("PASS: CxOOP_ALLOC Circle polymorphism works\n");
     }
-    CxOOP_DELETE(as_parent);  /* virtual destroy through base ptr + free */
+    CxOOP_DELETE(as_shape);
     printf("PASS: CxOOP_DELETE through base pointer\n");
 
     /* Test 3: CxOOP_DELETE with NULL is safe */
-    PARENT_OBJ *null_ptr = NULL;
+    Shape *null_ptr = NULL;
     CxOOP_DELETE(null_ptr);
     printf("PASS: CxOOP_DELETE(NULL) is safe\n");
 
     /* Test 4: Full polymorphic array with ALLOC/DELETE */
-    PARENT_OBJ *hp = CxOOP_ALLOC(PARENT_OBJ);
-    CONSTRUCTOR_PARENT_OBJ(hp);
-    CHILD_OBJ *hc = CxOOP_ALLOC(CHILD_OBJ);
-    CONSTRUCTOR_CHILD_OBJ(hc);
-    DECEN_OBJ *hd = CxOOP_ALLOC(DECEN_OBJ);
-    CONSTRUCTOR_DECEN_OBJ(hd);
+    Shape *hp = CxOOP_ALLOC(Shape); CONSTRUCTOR_Shape(hp);
+    Circle *hc2 = CxOOP_ALLOC(Circle); CONSTRUCTOR_Circle(hc2); hc2->radius = 2.0;
+    Sphere *hsp = CxOOP_ALLOC(Sphere); CONSTRUCTOR_Sphere(hsp); hsp->radius = 1.0;
 
-    hp->pub = hc->pub = hd->pub = 10;
-    PARENT_OBJ *arr[] = {hp, DCAST(PARENT_OBJ, hc), DCAST(PARENT_OBJ, hd)};
+    Shape *arr[] = {hp, DCAST(Shape, hc2), DCAST(Shape, hsp)};
 
-    int expected[] = {10, 20, 40};
+    double expected_vals[] = {0.0, 3.14159265 * 4.0, 4.0 * 3.14159265};
     int i;
     for (i = 0; i < 3; i++) {
-        int val = arr[i]->DoAction(arr[i]);
-        if (val != expected[i]) {
-            printf("FAIL: arr[%d] got %d, expected %d\n", i, val, expected[i]);
-            pass = 0;
+        double val = arr[i]->area(arr[i]);
+        if (val < expected_vals[i] - 0.1 || val > expected_vals[i] + 0.1) {
+            printf("FAIL: arr[%d] got %.4f, expected %.4f\n", i, val, expected_vals[i]); pass = 0;
         }
     }
-    if (pass) {
-        printf("PASS: polymorphic array dispatch correct\n");
-    }
+    if (pass) printf("PASS: polymorphic array dispatch correct\n");
 
-    for (i = 0; i < 3; i++) {
-        CxOOP_DELETE(arr[i]);
-    }
+    for (i = 0; i < 3; i++) CxOOP_DELETE(arr[i]);
     printf("PASS: CxOOP_DELETE polymorphic array\n");
 
-    if (!pass) {
-        printf("\nSOME TESTS FAILED\n");
-        return EXIT_FAILURE;
-    }
+    if (!pass) { printf("\nSOME TESTS FAILED\n"); return EXIT_FAILURE; }
     printf("\nALL TESTS PASSED\n");
     return EXIT_SUCCESS;
 }
