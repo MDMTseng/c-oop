@@ -67,9 +67,10 @@
         CLASSNAME##_PRIVATE_METHOD_(CLASSNAME,CxOOP__METHOD__SETTING)\
         CLASSNAME##_OVERRIDE_METHOD_(CLASSNAME,CxOOP__METHOD__OVERRIDE_SETTING)\
 
-/* Inheritance helpers — alternate EXTENDS_ / EXTENDS2_ at each level */
+/* Inheritance — adjacent levels must use different EXTENDS variants */
 #define CxOOP_EXTENDS_(PARENT,X,COBJ)  PARENT##_DNA_(X,COBJ) X(PARENT,COBJ)
 #define CxOOP_EXTENDS2_(PARENT,X,COBJ) PARENT##_DNA_(X,COBJ) X(PARENT,COBJ)
+#define CxOOP_EXTENDS3_(PARENT,X,COBJ) PARENT##_DNA_(X,COBJ) X(PARENT,COBJ)
 
 /* Heap allocation */
 #define CxOOP_ALLOC(CLASS)  ((CLASS*)calloc(1, sizeof(CLASS)))

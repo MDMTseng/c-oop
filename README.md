@@ -253,16 +253,17 @@ p->Destroy(p);   /* calls Sphere -> Circle -> Shape destructors */
 | `CxOOP_OBJECT_DECLARE(CLASS)` | Generate struct types and destructor prototype |
 | `CxOOP_DECLARE_METHOD(CLASS)` | Forward-declare all static method implementations |
 | `CxOOP_INIT_METHOD(CLASS, ptr)` | Wire function pointers in constructor |
-| `CxOOP_EXTENDS_(PARENT, X, COBJ)` | Inherit from parent (odd levels: 1st, 3rd, ...) |
-| `CxOOP_EXTENDS2_(PARENT, X, COBJ)` | Inherit from parent (even levels: 2nd, 4th, ...) |
+| `CxOOP_EXTENDS_(PARENT, X, COBJ)` | Inherit from parent (variant 1) |
+| `CxOOP_EXTENDS2_(PARENT, X, COBJ)` | Inherit from parent (variant 2) |
+| `CxOOP_EXTENDS3_(PARENT, X, COBJ)` | Inherit from parent (variant 3 — spare for insertion) |
 | `CxOOP_ALLOC(CLASS)` | Heap-allocate a zero-initialized object |
 | `CxOOP_DELETE(ptr)` | Destroy + free a heap object |
 | `DCAST(ToClass, ptr)` | Safe downcast (returns `NULL` on mismatch) |
 | `CxOOP_OMNI(CLASS, ptr)` | Cast to `__OMNI__` view (access private + SUPER) |
 
-## The EXTENDS_ / EXTENDS2_ Alternation Rule
+## The EXTENDS Alternation Rule
 
-Due to macro expansion mechanics, each inheritance level must alternate between `CxOOP_EXTENDS_` and `CxOOP_EXTENDS2_`:
+Due to C preprocessor mechanics, adjacent inheritance levels must use **different** `EXTENDS` variants. Three variants are provided: `EXTENDS_`, `EXTENDS2_`, and `EXTENDS3_`.
 
 | Depth | Class | DNA macro |
 |-------|-------|-----------|
@@ -270,9 +271,14 @@ Due to macro expansion mechanics, each inheritance level must alternate between 
 | 1 | Circle | `CxOOP_EXTENDS_(Shape, ...)` |
 | 2 | Sphere | `CxOOP_EXTENDS2_(Circle, ...)` |
 | 3 | NextLevel | `CxOOP_EXTENDS_(Sphere, ...)` |
-| 4 | ... | `CxOOP_EXTENDS2_(...)` |
 
-The pattern is: odd depths use `EXTENDS_`, even depths use `EXTENDS2_`.
+**The only rule**: don't use the same variant as your parent. The third variant (`EXTENDS3_`) is useful when inserting a new class into an existing chain — you can use the spare slot without renumbering existing classes:
+
+```
+Before:  Shape(root) -> Circle(EXTENDS_) -> Sphere(EXTENDS2_)
+Insert:  Shape(root) -> Ellipse(EXTENDS3_) -> Circle(EXTENDS_) -> Sphere(EXTENDS2_)
+                        ^^^ only new code, nothing else changes
+```
 
 ## License
 

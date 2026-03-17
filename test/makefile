@@ -1,5 +1,5 @@
 
-TESTS=test_dcast_null test_destructor test_omni_cast test_heap_alloc test_virtual_destroy test_extends_macro test_alloc_delete
+TESTS=test_dcast_null test_destructor test_omni_cast test_heap_alloc test_virtual_destroy test_extends_macro test_alloc_delete test_extends3_insert
 CFLAGS=-Wall -std=c99 -I../CxOOP_lib -I../example
 OBJ_SRCS=../example/Shape.c ../example/Circle.c ../example/Sphere.c
 
