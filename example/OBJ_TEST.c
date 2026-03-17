@@ -43,5 +43,9 @@ int main(void) {
     printf("\n===============Object size==============\n");
     printf("!!!Hello sizeof!!!::%d..%d..%d\n",(int)sizeof(PARENT_OBJ),(int)sizeof(CHILD_OBJ),(int)sizeof(DECEN_OBJ));
 
+    DESTRUCTOR_DECEN_OBJ(&d);
+    DESTRUCTOR_CHILD_OBJ(&c);
+    DESTRUCTOR_PARENT_OBJ(&p);
+
     return EXIT_SUCCESS;
 }
